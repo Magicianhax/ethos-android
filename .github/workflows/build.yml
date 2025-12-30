@@ -29,14 +29,14 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
-      - name: Build APK
-        run: ./gradlew assembleRelease
+      - name: Build Debug APK (signed)
+        run: ./gradlew assembleDebug
         
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ethos-led-app
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
           
       - name: Upload build logs

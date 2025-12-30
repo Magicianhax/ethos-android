@@ -16,12 +16,24 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Note: Release builds require signing configuration
+            // For now, use debug builds which are auto-signed
+        }
+    }
+    
+    // Enable signing for debug builds (auto-generated)
+    signingConfigs {
+        getByName("debug") {
+            // Debug signing is automatic
         }
     }
 
