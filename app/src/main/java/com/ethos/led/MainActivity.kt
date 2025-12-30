@@ -1,9 +1,16 @@
 package com.ethos.led
 
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -17,6 +24,22 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: EthosViewModel by viewModels()
     private var brightnessDebounceJob: kotlinx.coroutines.Job? = null
 
+    // Permission launcher for Bluetooth
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.all { it.value }
+        if (allGranted) {
+            checkBluetoothAndConnect()
+        } else {
+            Toast.makeText(
+                this,
+                "Bluetooth permissions are required to connect",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -24,6 +47,51 @@ class MainActivity : AppCompatActivity() {
 
         setupObservers()
         setupListeners()
+        requestBluetoothPermissions()
+    }
+
+    private fun requestBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+ requires BLUETOOTH_SCAN and BLUETOOTH_CONNECT
+            val permissions = arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
+            if (permissions.any { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }) {
+                requestPermissionLauncher.launch(permissions)
+            } else {
+                checkBluetoothAndConnect()
+            }
+        } else {
+            // Older Android versions
+            val permissions = arrayOf(
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            if (permissions.any { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }) {
+                requestPermissionLauncher.launch(permissions)
+            } else {
+                checkBluetoothAndConnect()
+            }
+        }
+    }
+
+    private fun checkBluetoothAndConnect() {
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothAdapter = bluetoothManager.adapter
+        
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+            Toast.makeText(
+                this,
+                getString(R.string.bluetooth_not_enabled),
+                Toast.LENGTH_LONG
+            ).show()
+            binding.connectButton.text = getString(R.string.connect_to_led)
+        } else {
+            // Bluetooth is enabled, but don't auto-connect - let user click button
+            binding.connectButton.text = getString(R.string.connect_to_led)
+        }
     }
 
     private fun setupObservers() {
@@ -81,6 +149,7 @@ class MainActivity : AppCompatActivity() {
         // Device Connected
         viewModel.deviceConnected.observe(this) { connected ->
             updateStatus()
+            updateConnectButton(connected)
         }
 
         // LED Power
@@ -176,6 +245,33 @@ class MainActivity : AppCompatActivity() {
         // Clear Screen Button
         binding.clearScreenButton.setOnClickListener {
             viewModel.clearScreen()
+        }
+
+        // Connect/Disconnect Button
+        binding.connectButton.setOnClickListener {
+            val connected = viewModel.deviceConnected.value ?: false
+            if (connected) {
+                // Disconnect
+                viewModelScope.launch {
+                    viewModel.disconnectDevice()
+                }
+            } else {
+                // Connect
+                checkBluetoothAndConnect()
+                viewModelScope.launch {
+                    viewModel.connectToDevice()
+                }
+            }
+        }
+    }
+
+    private fun updateConnectButton(connected: Boolean) {
+        if (connected) {
+            binding.connectButton.text = getString(R.string.disconnect)
+            binding.connectButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.danger)
+        } else {
+            binding.connectButton.text = getString(R.string.connect_to_led)
+            binding.connectButton.backgroundTintList = ContextCompat.getColorStateList(this, R.color.primary)
         }
     }
 

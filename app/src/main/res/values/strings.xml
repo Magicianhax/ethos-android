@@ -17,6 +17,10 @@
     <string name="power">Power</string>
     <string name="updated">Updated</string>
     <string name="enter_username_below">Enter username below</string>
+    <string name="connect_to_led">Connect to LED</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="bluetooth_permission_required">Bluetooth permission required</string>
+    <string name="bluetooth_not_enabled">Please enable Bluetooth in settings</string>
 </resources>
 
 

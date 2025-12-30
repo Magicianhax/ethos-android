@@ -63,12 +63,22 @@ class EthosViewModel(application: Application) : AndroidViewModel(application) {
         _deviceConnected.value = false
         _ledPower.value = true
         _currentTierColor.value = "ffffff"
-        connectToDevice()
+        // Don't auto-connect - let user click connect button after granting permissions
     }
 
     fun connectToDevice() {
         viewModelScope.launch {
             _deviceConnected.value = bleService.connect(BleService.DEVICE_ADDRESS)
+            if (!(_deviceConnected.value ?: false)) {
+                _error.value = "Failed to connect. Check device address and Bluetooth."
+            }
+        }
+    }
+
+    fun disconnectDevice() {
+        viewModelScope.launch {
+            bleService.disconnect()
+            _deviceConnected.value = false
         }
     }
 
