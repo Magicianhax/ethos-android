@@ -1,0 +1,19 @@
+image: gitpod/workspace-android
+
+tasks:
+  - name: Setup Android Project
+    init: |
+      cd ethos_android_app
+      # Download gradle wrapper if needed
+      if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+        mkdir -p gradle/wrapper
+        curl -L https://raw.githubusercontent.com/gradle/gradle/v8.2.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+      fi
+      chmod +x gradlew
+    command: echo "Ready to build! Run: cd ethos_android_app && ./gradlew assembleRelease"
+
+vscode:
+  extensions:
+    - mathiasfrohlich.Kotlin
+    - vscjava.vscode-gradle
+

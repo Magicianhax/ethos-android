@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ethos LED</string>
+    <string name="enter_username">Enter Twitter/X username</string>
+    <string name="show_score">Show Score</string>
+    <string name="brightness">Brightness</string>
+    <string name="color">Color</string>
+    <string name="auto_refresh">Auto-refresh (every minute)</string>
+    <string name="refresh_now">Refresh Now</string>
+    <string name="led_control">LED Control</string>
+    <string name="power_on">Power ON</string>
+    <string name="power_off">Power OFF</string>
+    <string name="clear_screen">Clear Screen</string>
+    <string name="use_tier_color">Use Tier Color</string>
+    <string name="led_connected">LED Connected</string>
+    <string name="led_disconnected">LED Disconnected</string>
+    <string name="power">Power</string>
+    <string name="updated">Updated</string>
+    <string name="enter_username_below">Enter username below</string>
+</resources>
+
+
