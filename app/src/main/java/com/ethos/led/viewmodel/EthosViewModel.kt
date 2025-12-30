@@ -130,6 +130,22 @@ class EthosViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun sendCurrentScoreToLed() {
+        val score = _currentScore.value
+        if (score == null) {
+            _error.value = "No score to send. Enter username first."
+            return
+        }
+        if (!bleService.isConnected()) {
+            _error.value = "LED not connected. Connect first!"
+            return
+        }
+        viewModelScope.launch {
+            val displayColor = _customColor.value ?: _currentTierColor.value ?: "ffffff"
+            sendToLed(score, displayColor)
+        }
+    }
+
     fun toggleAutoRefresh() {
         val newValue = !(_autoRefresh.value ?: false)
         _autoRefresh.value = newValue

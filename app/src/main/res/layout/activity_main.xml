@@ -67,6 +67,19 @@
                     android:layout_marginTop="10dp"
                     android:text="@string/enter_username_below" />
 
+                <Button
+                    android:id="@+id/sendToLedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Send to LED"
+                    android:backgroundTint="@color/success"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:padding="12dp"
+                    android:layout_marginTop="15dp"
+                    android:visibility="gone" />
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

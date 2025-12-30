@@ -109,8 +109,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.currentScore.observe(this) { score ->
             if (score != null) {
                 binding.scoreText.text = score.toString()
+                binding.sendToLedButton.visibility = View.VISIBLE
             } else {
                 binding.scoreText.text = "----"
+                binding.sendToLedButton.visibility = View.GONE
             }
         }
 
@@ -245,6 +247,12 @@ class MainActivity : AppCompatActivity() {
         // Clear Screen Button
         binding.clearScreenButton.setOnClickListener {
             viewModel.clearScreen()
+        }
+
+        // Send to LED Button
+        binding.sendToLedButton.setOnClickListener {
+            viewModel.sendCurrentScoreToLed()
+            Toast.makeText(this, "Sending to LED...", Toast.LENGTH_SHORT).show()
         }
 
         // Connect/Disconnect Button

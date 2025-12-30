@@ -21,6 +21,8 @@
     <string name="disconnect">Disconnect</string>
     <string name="bluetooth_permission_required">Bluetooth permission required</string>
     <string name="bluetooth_not_enabled">Please enable Bluetooth in settings</string>
+    <string name="send_to_led">Send to LED</string>
+    <string name="led_not_connected">LED not connected. Connect first!</string>
 </resources>
 
 
