@@ -252,13 +252,13 @@ class MainActivity : AppCompatActivity() {
             val connected = viewModel.deviceConnected.value ?: false
             if (connected) {
                 // Disconnect
-                viewModelScope.launch {
+                lifecycleScope.launch {
                     viewModel.disconnectDevice()
                 }
             } else {
                 // Connect
                 checkBluetoothAndConnect()
-                viewModelScope.launch {
+                lifecycleScope.launch {
                     viewModel.connectToDevice()
                 }
             }
