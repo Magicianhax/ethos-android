@@ -18,6 +18,14 @@ import java.util.Locale
 class EthosViewModel(application: Application) : AndroidViewModel(application) {
     private val ethosApi = ApiClient.ethosApi
     private val bleService = BleService(application)
+    private var logCallback: ((String) -> Unit)? = null
+
+    fun setLogCallback(callback: (String) -> Unit) {
+        logCallback = callback
+        bleService.setLogCallback { message ->
+            logCallback?.invoke(message)
+        }
+    }
 
     private val _currentUser = MutableLiveData<String?>()
     val currentUser: LiveData<String?> = _currentUser

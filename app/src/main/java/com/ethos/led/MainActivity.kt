@@ -40,14 +40,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val logs = mutableListOf<String>()
+    private val maxLogLines = 50
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Setup log callback
+        viewModel.setLogCallback { message ->
+            runOnUiThread {
+                addLog(message)
+            }
+        }
+
         setupObservers()
         setupListeners()
         requestBluetoothPermissions()
+    }
+
+    private fun addLog(message: String) {
+        val timestamp = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+        val logEntry = "[$timestamp] $message"
+        logs.add(logEntry)
+        
+        // Keep only last maxLogLines
+        if (logs.size > maxLogLines) {
+            logs.removeAt(0)
+        }
+        
+        // Update UI
+        binding.logText.text = logs.joinToString("\n")
+        
+        // Auto-scroll to bottom
+        binding.logText.post {
+            val scrollView = binding.logText.parent as? android.widget.ScrollView
+            scrollView?.fullScroll(android.view.View.FOCUS_DOWN)
+        }
     }
 
     private fun requestBluetoothPermissions() {
@@ -82,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         val bluetoothAdapter = bluetoothManager.adapter
         
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+            addLog("✗ Bluetooth not enabled")
             Toast.makeText(
                 this,
                 getString(R.string.bluetooth_not_enabled),
@@ -89,6 +120,7 @@ class MainActivity : AppCompatActivity() {
             ).show()
             binding.connectButton.text = getString(R.string.connect_to_led)
         } else {
+            addLog("✓ Bluetooth is enabled")
             // Bluetooth is enabled, but don't auto-connect - let user click button
             binding.connectButton.text = getString(R.string.connect_to_led)
         }
@@ -251,8 +283,15 @@ class MainActivity : AppCompatActivity() {
 
         // Send to LED Button
         binding.sendToLedButton.setOnClickListener {
+            addLog("→ User clicked 'Send to LED'")
             viewModel.sendCurrentScoreToLed()
             Toast.makeText(this, "Sending to LED...", Toast.LENGTH_SHORT).show()
+        }
+
+        // Clear Logs Button
+        binding.clearLogsButton.setOnClickListener {
+            logs.clear()
+            binding.logText.text = "Logs cleared.\n"
         }
 
         // Connect/Disconnect Button
@@ -260,11 +299,13 @@ class MainActivity : AppCompatActivity() {
             val connected = viewModel.deviceConnected.value ?: false
             if (connected) {
                 // Disconnect
+                addLog("→ User clicked 'Disconnect'")
                 lifecycleScope.launch {
                     viewModel.disconnectDevice()
                 }
             } else {
                 // Connect
+                addLog("→ User clicked 'Connect to LED'")
                 checkBluetoothAndConnect()
                 lifecycleScope.launch {
                     viewModel.connectToDevice()
